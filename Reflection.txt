@@ -1,0 +1,31 @@
+Manually tuning the pid controller was far more difficult than expected if I only used cte and 
+steering angle alone. The d parameter was the most difficult to tune. In the lesson we are taught that d 
+removes oscillations by cancelling out a first-order differential by moderating -- fact check this 
+and eventually reducing to zero the sequential error terms. This understanding was difficult to use. 
+The naive strategy for using these facts would be to start with a p parameter and increase 
+until oscillations no longer remain. If there is then bias, then increase the i parameter 
+until no more bias remains. However, the track with its changing curves made impractical. 
+Once the car enters a curve, the angle relative to the trajectory exiting the curve was 
+sensitive to the smallest changes in the parameters. Changing the parameters even by 10e-5
+could drive the car off the track when a manageable oscillation became violent. Eventually,
+I gave up on tuning the pid controller on steering angle alone and added a pid controller
+on velocity. The controller reduced the throttle when the cte was high. This reduced the 
+impact of extreme steering with high ctes and moderated oscillations that would otherwise
+cause the car to exit the track.
+
+In more detail, my experiments followed roughly 3 stages. I started by determining the minimum
+p parameter that would allow the car to steer through curves. This I determined to be 0.2. I reasoned
+that with this minimum value, I could reduce the complexity of the task, keeping the other two parameters
+as low as possible, gradually incrementing them using the heuristics I described above. When the d parameter
+proved difficult to tune with the p term, I experimented with higher magnitudes of the i term. 
+This term is useful for navigating curves as a curve will generate large sums of cte 
+which the i term will quickly drive down.But the i term can also generate oscillations since large 
+sums of cte will generate fast movementsin the opposite direction. To deal with these oscillations, 
+large d terms were needed. Experiments with increasing d terms holding p and i terms constant also failed.
+
+After this failure, I started to test two ideas. The first was to decrease the throttle with 
+high (negative or positive) cte. The second idea was to build a version of twiddle that would 
+train the model slowly. This version of twiddle would basically work over epochs. Ideally, these 
+epochs would overlap with each other over the cycle of a track so that the parameters work over 
+overlapping frames instead of isolated 'groups' of frames. As I tested the pid controller of throttle, 
+this was both simple and effective and ended up being my strategy for the submission.

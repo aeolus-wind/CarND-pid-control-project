@@ -17,6 +17,23 @@ public:
   double Ki;
   double Kd;
 
+  double delta_p;
+  double delta_i;
+  double delta_d;
+
+  double trailing_cte;
+  double best_trailing_cte;
+	
+  int time_steps;
+  int c;
+
+  bool initialized;
+  bool first_run;
+
+  double prev_cte;
+
+  double total_cte;
+
   /*
   * Constructor
   */
@@ -36,6 +53,10 @@ public:
   * Update the PID error variables given cross track error.
   */
   void UpdateError(double cte);
+
+  void Twiddle(double cte,double& param_to_opp, double& delta_param_to_op, int& stage);
+
+
 
   /*
   * Calculate the total PID error.
